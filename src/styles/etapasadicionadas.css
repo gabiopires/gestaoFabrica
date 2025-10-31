@@ -1,0 +1,15 @@
+.c1_etapasadicionadas{
+    width: 200px;
+    padding:3px;
+}
+.c2_etapasadicionadas{
+    width: 200px;
+    padding:3px;
+}
+.c3_etapasadicionadas{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

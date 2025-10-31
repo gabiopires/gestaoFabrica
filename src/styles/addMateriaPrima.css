@@ -1,0 +1,23 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_addMateriaPrima{
+    width: 100px;
+    padding:3px;
+}
+.c2_addMateriaPrima{
+    width: 100%;
+    padding:3px;
+}
+.c3_addMateriaPrima{
+    width: 200px;
+    padding:3px;
+}
+.c4_addMateriaPrima{
+    width: 100px;
+    padding:3px;
+}

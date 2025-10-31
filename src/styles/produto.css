@@ -1,0 +1,34 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_produto{
+    width: 100px;
+    padding:3px;
+}
+.c2_produto{
+    width: 450px;
+    padding:3px;
+}
+.c3_produto{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.c1_produtoItem{
+    width: 100px;
+    padding:3px;
+}
+.c2_produtoItem{
+    width: 450px;
+    padding:3px;
+}
+.c3_produtoItem{
+    width: 100px;
+    padding:3px;
+}

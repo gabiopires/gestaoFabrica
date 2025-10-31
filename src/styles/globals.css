@@ -1,0 +1,333 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("topo.css");
+@import url("menu.css");
+@import url("fabrica.css");
+@import url("celula.css");
+@import url("unidade.css");
+@import url("maquina.css");
+@import url("programa.css");
+@import url("produto.css");
+@import url("pedido.css");
+@import url("item.css");
+@import url("materiaprima.css");
+@import url("addrem.css");
+@import url("itemSimples.css");
+@import url("etapas.css");
+@import url("etapasadicionadas.css");
+@import url("detalhesPedido.css");
+@import url("materiasprimasadicionadas.css");
+@import url("addMateriaPrima.css");
+@import url("materiaprimaitem.css");
+@import url("configuracao.css");
+@import url("simulador.css");
+@import url("producao.css");
+@import url("pessoa.css");
+@import url("estoque.css");
+@import url("historico.css");
+@import url("colunas.css");
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --azul-escuro:#00438c;
+  --azul-claro:#00aeed;
+  --cinza-padrao:#eee;
+  --cinza-escuro:#bbb;
+  --azul-senai:#003369;
+  --cinza-senai:#7C7C7C;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+.ocultar{
+  display: none !important;
+}
+
+.popupFundo{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.75);
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100vh;
+  z-index:100000000000000;
+}
+.popupBase{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.popupBase30{
+  width: 30% !important;
+}
+.popupBase40{
+  width: 40% !important;
+}
+.popupBase50{
+  width: 50% !important;
+}
+.popupBase60{
+  width: 60% !important;
+}
+.popupBase70{
+  width: 70% !important;
+}
+.popupBase80{
+  width: 80% !important;
+}
+.popupBase90{
+  width: 90% !important;
+}
+.popupBase100{
+  width: 100% !important;
+}
+.popupBase100px{
+  width: 100px !important;
+}
+.popupBase200px{
+  width: 200px !important;
+}
+.popupBase300px{
+  width: 300px !important;
+}
+.popupBase400px{
+  width: 400px !important;
+}
+.popupBase500px{
+  width: 500px !important;
+}
+.popupBase600px{
+  width: 600px !important;
+}
+.popupBase700px{
+  width: 700px !important;
+}
+.popupBase900px{
+  width: 900px !important;
+}
+.popupBase1000px{
+  width: 1000px !important;
+}
+.popupBase1100px{
+  width: 1100px !important;
+}
+.popupTitulo{
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color:var(--azul-escuro);
+  color:#fff;
+  padding: 5px;
+  width: 100%;
+}
+
+.popupPrincipal{
+  display: flex;
+  background-color:var(--cinza-padrao);
+  color:#000;
+  padding: 5px;
+  width: 100%;
+}
+.popupPrincipalLinha{
+  flex-direction: row;
+}
+.popupPrincipalColuna{
+  flex-direction: column;
+}
+.popupPrincipalCentro{
+  justify-content: center !important;
+}
+
+.popupRodape{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+  background-color:var(--cinza-escuro);
+  color:#000;
+  padding: 5px;
+  width: 100%;
+}
+
+.coresBarraTituloPopup{
+  background-color: var(--azul-escuro);
+  color: #fff;
+}
+
+.coresPrincipalPopup{
+  background-color: var(--cinza-padrao);
+  color: #000;
+}
+
+.coresRodapePopup{
+  background-color: var(--cinza-escuro);
+  color: #000;
+}
+
+.btnPadrao{
+  background-color: var(--azul-escuro);
+  color: #fff;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 150px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btnPadrao100{
+  width: 100% !important;
+}
+.btnPadrao_cinza{
+  background-color: #aaa;
+  color: #fff;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+}
+.btnPadrao_cinza_selecionado{
+  background-color: var(--azul-escuro);
+}
+.btnPadrao:hover, .btnPadrao_cinza:hover{
+  background-color:var(--azul-claro);
+}
+
+.tituloGrid{
+  display: flex;
+  width: 100%;
+}
+.tituloGrid div{
+  background-color: var(--azul-escuro);
+  padding:3px;
+  color:#fff;
+  font-size: medium;
+}
+.linhaGrid{
+  display: flex;
+  font-size: medium;
+}
+.linhaGridCinza{
+  display: flex;
+  font-size: medium;
+  background-color: #ddd !important;
+}
+.linhaGrid:nth-child(even){
+  background-color: #eee;
+}
+.linhaGrid:nth-child(odd){
+  background-color: #ddd;
+}
+.linhaGrid:hover{
+  background-color: var(--azul-claro) !important;
+}
+.linhaGridSel{
+  background-color: #0ff !important;
+}
+
+.destaque{
+  /* background-color:var(--azul-claro) !important; */
+  background-color:#f00 !important;
+}
+
+
+
+
+.campoForm{
+  display: flex;
+  flex-direction: column;
+}
+.campoForm input, .campoForm select, .campoForm textarea{
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  width: 100%;
+}
+
+.aguardando{
+  background-color: var(--cinza-padrao) !important;
+}
+.filaproducao{
+  background-color: #ff8 !important;
+}
+.produzindo{
+  background-color: #8af !important;
+}
+.finalizado{
+  background-color: #6d6 !important;
+}
+.bloqueado{
+  background-color: #f44 !important;
+}
+
+.imgProduto{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 30%;
+  max-width: 30%;
+  border: 5px solid #000;
+  border-radius: 10px;
+  padding: 5px;
+}
+.imgProduto_p{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 250px;
+  max-width: 250px;
+  border: 5px solid #000;
+  border-radius: 10px;
+  padding: 5px;
+}
+.lixeiraImagemProd{
+  position:absolute;
+  top: 0px;
+  right: 0px;
+  width: 40px;
+  opacity: 0.5;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.lixeiraImagemProd:hover{
+  transition: all 0.2s;
+  opacity: 1;
+}
+
+.iconeTitulo{
+  width: 40px;
+}
+.iconeOper{
+  width: 60px !important; 
+  height: 20px !important;
+}
+
+.versaoTela{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #ccc;
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  font-size: small;
+}

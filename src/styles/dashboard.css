@@ -1,0 +1,66 @@
+.tituloDashboard{
+    background-color: var(--azul-escuro);
+    padding:3px;
+    color:#fff;
+    width: 100%;
+    font-size: medium;
+}
+.tituloGridDashboard{
+    display: flex;
+    width: 100%;
+    color:#000;
+    background-color: var(--azul-escuro);
+  }
+.produtoH{
+    border-bottom: 1px solid #000;
+}
+.c1_dashboard{
+    width: 100px;
+    padding:3px;
+    text-align: center;
+}
+.c2_dashboard{
+    width: 200px;
+    padding:3px;
+    text-align: center;
+}
+.c3_dashboard{
+    width: 150px;
+    padding:3px;
+    text-align: center;
+}
+.c4_dashboard{
+    width: 140px;
+    padding:3px;
+    text-align: center;
+}
+.c5_dashboard{
+    width: 120px;
+    padding: 3px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.c1_produtoItem_dashboard {
+    width: 100px;
+    display: flex;
+    padding: 3px;
+    flex-direction: column;
+    align-items: center
+}
+
+.c2_produtoItem_dashboard {
+    width: 240px;
+    padding: 3px;
+    text-align: center;
+}
+
+.c3_produtoItem_dashboard {
+    width: 254px;
+    padding-left: 22px;
+}
+.listaPedidos{
+    display: flex;
+    justify-content: flex-start;
+}

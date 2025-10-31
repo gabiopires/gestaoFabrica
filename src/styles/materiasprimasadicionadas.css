@@ -1,0 +1,37 @@
+.c1_materiasprimasadicionadas{
+    width: 80px;
+    padding:3px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+
+}
+.c2_materiasprimasadicionadas{
+    width: 300px;
+    padding:3px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.c3_materiasprimasadicionadas{
+    width: 150px;
+    padding:3px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.c4_materiasprimasadicionadas{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.c5_materiasprimasadicionadas{
+    width: 80px;
+    padding:3px;
+    display: flex;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}

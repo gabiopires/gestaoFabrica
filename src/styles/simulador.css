@@ -1,0 +1,37 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_simulador{
+    width: 100px;
+    padding:3px;
+}
+.c2_simulador{
+    width: 100%;
+    padding:3px;
+}
+.c3_simulador{
+    width: 150px;
+    padding:3px;
+}
+.c4_simulador{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.c5_simulador{
+    width: 30px;
+}
+
+.areaConfig{
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    max-height: 200px;
+    overflow: auto;
+}

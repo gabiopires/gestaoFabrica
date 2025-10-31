@@ -1,0 +1,20 @@
+.te1 {
+    display: flex;
+    justify-content: flex-start;
+    margin: 12px 12px 0px 12px;
+    flex-wrap: wrap;
+}
+
+.te2 {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 12px;
+    flex-wrap: wrap
+}
+
+.te3 {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0px 12px 12px 12px;
+    flex-wrap: wrap
+}

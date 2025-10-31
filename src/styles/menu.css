@@ -1,0 +1,146 @@
+.Menu{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #fff;
+    width: 225px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.iconeMenu{
+    width: 50px;
+    cursor: pointer;
+}
+
+.MenuExibir{
+    left: 0px;
+    transition: all 0.2s;
+}
+
+.MenuOcultar{
+    left: -160px;
+    transition: all 0.2s;
+}
+
+@media (max-width: 600px) {
+    .MenuOcultar{
+        left: -225px !important;
+    }
+}
+
+.tituloMenu{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    color: #1394DA;
+    padding: 5px;
+    font-size: x-large;
+}
+
+.fechado{
+    justify-content: end !important;
+}
+
+.itemMenu{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: small;
+    cursor: pointer;
+    color: #1394DA;
+    transition: all 0.1s;
+}
+
+.itemMenuFechado{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+    width: 100%;
+    height: 36px;
+    font-size: small;
+    cursor: pointer;
+    color: #1394DA;
+    transition: all 0.1s;
+}
+
+.itemMenu:hover, .itemMenuFechado:hover{
+    background-color: #00438c;
+    color: #fff;
+}
+
+.itemMenu p{
+    font-size: 1.5em;
+    margin: 5px 0px;
+    width: 70%;
+}
+
+.pManufac{
+    width: 60% !important;
+}
+
+.itemMenu img{
+    width: 20px;
+    margin:0px 10px 0px 10px;
+}
+
+.itemMenuImage{
+    width: 20px !important;
+    margin:0px 0px 0px 0px !important;
+}
+
+.itemMenuFechado img{
+    width: 25px;
+    margin-right: 9%;
+}
+
+.itemSubMenu{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    font-size: small;
+    padding-left: 25px;
+    background-color: #EEEEEE;
+    border-bottom: solid 2px #fff;
+}
+
+.itemSubMenu:hover{
+    background-color: #00438c;
+    color: #fff;
+}
+.itemSubMenu p{
+    font-size: 1.5em;
+    margin: 5px 0px;
+    color: #1394DA;
+}
+.itemSubMenu img{
+    width: 20px;
+    margin:0px 10px 0px 10px;
+}
+
+.btn_fecharMenu{
+    width: 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    /* margin-right: 40%; */
+    transition: all 0.1s;
+}
+
+.btn_fecharMenuFechado{
+    width: 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 6%;
+    transition: all 0.1s;
+}

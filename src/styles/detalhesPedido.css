@@ -1,0 +1,54 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_detalhesPedido_produto{
+    width: 150px;
+    padding:3px;
+}
+.c2_detalhesPedido_produto{
+    width: 350px;
+    padding:3px;
+}
+.c3_detalhesPedido_produto{
+    width: 250px;
+    padding:3px;
+}
+.c4_detalhesPedido_produto{
+    width: 150px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.c5_detalhesPedido_produto{
+    width: 180px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.c6_detalhesPedido_produto{
+    color: white;
+    width: 80px;
+    /* margin-left: 10px; */
+    padding:3px;
+    padding-left: 15px;
+    padding-right: -15px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.b_confimar_detalhes_produto{
+    width: 100%;
+    background-color: green; 
+    color:white; 
+    border: 1px black solid;
+    border-radius: 3px;
+    padding: 10px;
+    margin: 2px;
+}

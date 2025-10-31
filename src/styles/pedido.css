@@ -1,0 +1,52 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_pedido{
+    width: 100px;
+    padding:3px;
+}
+.c2_pedido{
+    width: 200px;
+    padding:3px;
+}
+.c3_pedido{
+    width: 120px;
+    padding:3px;
+}
+.c4_pedido{
+    width: 120px;
+    padding:3px;
+}
+.c5_pedido{
+    width: 120px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.c6_pedido{
+    width: 120px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.c7_pedido{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.ocultarLinhaPedido{
+    display: none !important;
+}
+
+

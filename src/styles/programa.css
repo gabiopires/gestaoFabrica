@@ -1,0 +1,26 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_programa{
+    width: 100px;
+    padding:3px;
+}
+.c2_programa{
+    width: 350px;
+    padding:3px;
+}
+.c3_programa{
+    width: 200px;
+    padding:3px;
+}
+.c4_programa{
+    width: 100px;
+    padding:3px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

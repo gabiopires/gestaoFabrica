@@ -1,0 +1,73 @@
+.linhaListaCelula{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.c1_producao{
+    width: 200px;
+    padding:3px;
+}
+.c2_producao{
+    width: 200px;
+    padding:3px;
+}
+.c3_producao{
+    width: 200px;
+    padding:3px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.c4_producao{
+    width: 200px;
+    padding:3px;
+}
+
+
+.ocultarLinhaPedido{
+    display: none !important;
+}
+
+.c1_prodetapa{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px;
+    margin: 0px;
+    width: 100px;
+}
+.c2_prodetapa{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px;
+    margin: 0px;    
+    width: 300px;
+}
+.c3_prodetapa{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px;
+    margin: 0px;    
+    width: 100px;
+}
+.c4_prodetapa{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px;
+    margin: 0px;    
+    width: 100px;
+}
+
+.ledPedido{
+    width: 15px;
+    height: 15px;
+}
+.ledPProduto{
+    width: 10px;
+    height: 10px;
+}
