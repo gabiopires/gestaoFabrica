@@ -83,6 +83,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
         const{
             material,
             qtd,
+            qtdStatus,
             date,
             fornecedor,
             solicitante,
@@ -136,17 +137,45 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                 return res.status(500).json({message:"Internal Server Error"});
             }
         }else if(action == 'movStatus'){
-            try {
-                const connection = await pool.getConnection();
-                const query=`ALTER TABLE ${table};`
-                const [rows] = await connection.query<RowDataPacket[]>(query,[])
-                connection.release()
-                const dataReturn=rows[0]
-                return res.status(200).json({dataReturn});
-            }catch(error){
-                console.error(error)
-                return res.status(500).json({message:"Internal Server Error"});
+            let query;
+            if(qtdStatus >= 0){
+                try {
+                    const connection = await pool.getConnection();
+    
+                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows1] = await connection.query<RowDataPacket[]>(query,[])
+    
+                    
+                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows2] = await connection.query<RowDataPacket[]>(query,[])
+    
+                    connection.release()
+                    const dataReturn=rows1[0]
+                    return res.status(200).json({dataReturn});
+                }catch(error){
+                    console.error(error)
+                    return res.status(500).json({message:"Internal Server Error"});
+                }
+            }else{
+                try {
+                    const connection = await pool.getConnection();
+    
+                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows1] = await connection.query<RowDataPacket[]>(query,[])
+    
+                    
+                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows2] = await connection.query<RowDataPacket[]>(query,[])
+    
+                    connection.release()
+                    const dataReturn=rows1[0]
+                    return res.status(200).json({dataReturn});
+                }catch(error){
+                    console.error(error)
+                    return res.status(500).json({message:"Internal Server Error"});
+                }
             }
+            
         }
         
     }else{

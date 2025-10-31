@@ -79,7 +79,7 @@ export default function PaginaEstoque() {
                                             <div key={index} className='border-b-2 h-[35px] flex overflow-auto'>
                                                 <p className='w-[60%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
                                                 <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdBruto}</p>
-                                                <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdPreparado}</p>
+                                                <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdPreparado== null ? 0 : a.qtdPreparado}</p>
                                             </div>
                                         ))}
                                     </div>

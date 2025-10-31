@@ -15,12 +15,14 @@ export default function MovEstoque(props: MovProps){
     const [emailSolicitante, setEmailSolicitante] = useState("");
     const [status, setStatus] = useState("");
     const [acompanhante, setAcompanhante] = useState("");
+    const [item, setItem] = useState("");
+    const [itemData, setItemData] = useState<{id: number, nome: string, qtd: number}[]>([]);
     const [materialData, setMaterialData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
     const [materialStatus, setMaterialStatus] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
     const [pessoas, setPessas] = useState<{id: number, nome: string}[]>([])
 
     useEffect(()=>{
-            carregarMateriais()
+        carregarMateriais()
     },[])
 
     async function carregarMateriais(){
@@ -31,9 +33,11 @@ export default function MovEstoque(props: MovProps){
             const response = await fetch(endpoint, { cache: "reload", method: "GET" })
             if (response.status === 200) {
                 const returnDataApi = await response.json()
+                setItemData(returnDataApi.item)
 
                 const tmpMaterialData = [...materialData];
                 const tmpStatus = [...materialStatus]
+
                 returnDataApi.bruto.map((a: any)=>{
                     tmpMaterialData.push(a)
                     tmpStatus.push(a)
@@ -77,20 +81,28 @@ export default function MovEstoque(props: MovProps){
         }else if(type == "2" && acompanhante == ""){
             alert("Informe quem acompanhou a parodução");
         }else{
-            let tabela, qtdAnterior;
+            let tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
             materialData.map((a)=>{
                 if(material == a.id){
-                    // setTabela(a.tabela);
                     tabela = a.tabela;
+                    if(tabela == "0"){
+                        qtdAnteriorBruto = a.qtdBruto;
+                        qtdAnteriorPreparado = a.qtdPreparado;
+                    }else{
+                        qtdAnterior = a.qtd;
+                    }
+                }
+
+                if(item != "" && item == a.id){
                     qtdAnterior = a.qtd;
                 }
             })
-            SaveData(tabela, qtdAnterior);
+            SaveData(tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado);
         }
     }
 
-    async function SaveData(tabela: any, qtdAnterior: any){
-        let action, qtd;
+    async function SaveData(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado: any){
+        let action, qtd, qtdStatus = -1;
         
         if(type == "0"){
             action = "movEntrada";
@@ -98,10 +110,23 @@ export default function MovEstoque(props: MovProps){
         }else if(type == "1" && qtdAnterior > "0"){
             action = "movSaida";
             qtd = Number(qtdAnterior) - Number(quantidade);
-        }else if(type == "2"){
+        }else if(type == "2" && !(qtdAnterior <= 0 || qtdAnteriorBruto <= 0 || qtdAnteriorPreparado <= 0)){
             action = "movStatus";
+
+            if(status == "0"){
+                qtdStatus = Number(qtdAnteriorPreparado) + Number(quantidade);
+                qtd = Number(qtdAnteriorBruto) - Number(quantidade);
+            }else if(status == "1"){
+                qtdStatus = Number(qtdAnterior) + Number(quantidade);
+                qtd = Number(qtdAnteriorPreparado) - Number(quantidade);
+            }
+
         }else if(type == "1" && qtdAnterior <= "0"){
             alert("não é possivel diminuir a quantidade")
+            return;
+        }else if(type == "2" && (qtdAnterior <= 0 || qtdAnteriorBruto <= 0 || qtdAnteriorPreparado <= 0)){
+            alert("não é possivel diminuir a quantidade")
+            return;
         }
 
         try {
@@ -113,6 +138,7 @@ export default function MovEstoque(props: MovProps){
                 body: JSON.stringify({
                     material: material,
                     qtd: qtd,
+                    qtdStatus: qtdStatus,
                     date: date,
                     fornecedor: fornecedor,
                     solicitante: solicitante,
@@ -208,7 +234,20 @@ export default function MovEstoque(props: MovProps){
                                 }
                             </div>
                         </div>
-                        <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-2 md:gap-7 w-full md:ml-3'>
+                        <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 md:gap-5 w-full md:ml-3'>
+                            <div className='h-full flex flex-col gap-2 justify-center items-start'>
+                                {status == "1" &&
+                                     <>
+                                        <p className='ml-2'>Item produzido:</p>
+                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={item} onChange={(evt)=>{setItem(evt.target.value)}}>
+                                            <option value="" hidden>Selecione</option>
+                                            {itemData.map((p, index)=>(
+                                                <option key={index} value={p.id}>{p.nome}</option>
+                                            ))}
+                                        </select>
+                                    </>
+                                }
+                            </div>
                             <div className='h-full flex flex-col gap-2 justify-center items-start'>
                                 {type == "1"?
                                     <>
@@ -218,7 +257,7 @@ export default function MovEstoque(props: MovProps){
                                 type == "2" &&
                                     <>
                                         <p className='ml-2'>Acompanhou a produção:</p>
-                                        <select className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full' value={acompanhante} onChange={(evt)=>{setAcompanhante(evt.target.value)}}>
+                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={acompanhante} onChange={(evt)=>{setAcompanhante(evt.target.value)}}>
                                             <option value="" hidden>Selecione</option>
                                             {pessoas.map((p, index)=>(
                                                 <option key={index} value={p.id}>{p.nome}</option>
