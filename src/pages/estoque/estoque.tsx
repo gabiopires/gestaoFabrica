@@ -11,7 +11,7 @@ export default function PaginaEstoque() {
 
     useEffect(()=>{
         carregarEstoques()
-    },[])
+    },[movEstoque])
 
 
     const metricsProduto = [{text:"finalizados",desc:"50"},{text:"prontos para montar",desc:"10"},{text:"necessário produzir",desc:"5"},{text:"necessário comprar",desc:"50"}]
@@ -65,8 +65,8 @@ export default function PaginaEstoque() {
                         </div>
                     </div>
                     <div className='md:w-[80%] w-[90%] md:h-[100%] flex md:flex-row flex-col'>
-                        <div className='w-[100%] flex flex-col md:h-[100%]'>
-                            <div className='h-[60%]'>
+                        <div className='w-[100%] flex flex-col md:h-[100%] h-auto'>
+                            <div className='md:h-[60%] h-auto'>
                                 <p className='mt-5 md:ml-12 ml-8 md:mr-2 mr-5 mb-2 h-[25px]'>Bruto/Preparado</p>
                                 <div className='md:ml-10 md:mr-2 rounded-lg md:h-[calc(100%-55px)] overflow-hidden border-2'>
                                     <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex md:pb-0 pb-7 pt-7 md:pt-0'>
@@ -79,13 +79,13 @@ export default function PaginaEstoque() {
                                             <div key={index} className='border-b-2 h-[35px] flex overflow-auto'>
                                                 <p className='w-[60%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
                                                 <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdBruto}</p>
-                                                <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdPreparado== null ? 0 : a.qtdPreparado}</p>
+                                                <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdPreparado}</p>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             </div>
-                            <div className='h-[40%]'>
+                            <div className='md:h-[40%] h-auto'>
                                 <p className='mt-5 md:ml-12 ml-8 md:mr-2 mr-5 mb-2'>Comparação entre produtos</p>
                                 <div className='border-2 border-b-0 md:ml-10 md:mr-2 rounded-lg'>
                                     <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex md:pb-0 pb-7 pt-7 md:pt-0'>
@@ -107,7 +107,7 @@ export default function PaginaEstoque() {
                         </div>
                         <div className='w-[100%] md:h-[100%]'>
                             <p className='mt-5 md:mr-12 mr-5 md:ml-5 ml-8 mb-2'>Item</p>
-                            <div className='border-2 md:mr-10 md:ml-2 h-[calc(100%-70px)] rounded-lg'>
+                            <div className='border-2 md:mr-10 md:ml-2 md:h-[calc(100%-70px)] h-auto rounded-lg'>
                                 <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex md:pr-3'>
                                     <p className='w-[70%] flex items-center justify-center text-sm text-center leading-none'>Nome</p>
                                     <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>Quantidade</p>
@@ -117,6 +117,27 @@ export default function PaginaEstoque() {
                                         <div key={index} className='border-b-2 h-[35px] flex'>
                                             <p className='w-[70%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
                                             <p className='w-[20%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='md:w-[80%] w-[90%] md:h-[100%]'>
+                        <div className='w-[100%] md:h-[100%] pt-4'>
+                            <p className='mt-5 md:mt-0 md:mr-12 md:ml-12 ml-8 mb-2'>Movimentações dos últimos 30 dias</p>
+                            <div className='border-2 md:mr-10 md:ml-10 h-[calc(100%-40px)] rounded-lg'>
+                                <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex md:pr-3'>
+                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Material</p>
+                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Quantidade</p>
+                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Data</p>
+                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Movimentação</p>
+                                </div>
+                                <div className='md:h-[calc(100%-35px)] h-auto md:overflow-auto'>
+                                    {item.map((a,index)=>(
+                                        <div key={index} className='border-b-2 h-[35px] flex'>
+                                            <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
+                                            <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
                                         </div>
                                     ))}
                                 </div>

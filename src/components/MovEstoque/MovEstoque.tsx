@@ -17,7 +17,7 @@ export default function MovEstoque(props: MovProps){
     const [acompanhante, setAcompanhante] = useState("");
     const [item, setItem] = useState("");
     const [itemData, setItemData] = useState<{id: number, nome: string, qtd: number}[]>([]);
-    const [materialData, setMaterialData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
+    const [materialData, setMaterialData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialStatus, setMaterialStatus] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
     const [pessoas, setPessas] = useState<{id: number, nome: string}[]>([])
 
@@ -45,7 +45,6 @@ export default function MovEstoque(props: MovProps){
 
                 returnDataApi.item.map((b: any)=>{
                     tmpMaterialData.push(b)
-                    tmpStatus.push(b)
                 })
 
                 returnDataApi.produto.map((c: any)=>{
@@ -81,7 +80,7 @@ export default function MovEstoque(props: MovProps){
         }else if(type == "2" && acompanhante == ""){
             alert("Informe quem acompanhou a parodução");
         }else{
-            let tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
+            let tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
             materialData.map((a)=>{
                 if(material == a.id){
                     tabela = a.tabela;
@@ -95,36 +94,45 @@ export default function MovEstoque(props: MovProps){
 
                 if(item != "" && item == a.id){
                     qtdAnterior = a.qtd;
+                    materialNovoStatus = a.id;
                 }
             })
-            SaveData(tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado);
+            SaveData(tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado);
         }
     }
 
-    async function SaveData(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado: any){
+    async function SaveData(tabela: any, materialNovoStatus: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado: any){
         let action, qtd, qtdStatus = -1;
         
         if(type == "0"){
+
             action = "movEntrada";
             qtd = Number(quantidade) + Number(qtdAnterior);
+
         }else if(type == "1" && qtdAnterior > "0"){
+
             action = "movSaida";
             qtd = Number(qtdAnterior) - Number(quantidade);
-        }else if(type == "2" && !(qtdAnterior <= 0 || qtdAnteriorBruto <= 0 || qtdAnteriorPreparado <= 0)){
-            action = "movStatus";
 
-            if(status == "0"){
-                qtdStatus = Number(qtdAnteriorPreparado) + Number(quantidade);
-                qtd = Number(qtdAnteriorBruto) - Number(quantidade);
-            }else if(status == "1"){
-                qtdStatus = Number(qtdAnterior) + Number(quantidade);
-                qtd = Number(qtdAnteriorPreparado) - Number(quantidade);
-            }
+        }else if(type == "2" && status == "0" && !(qtdAnteriorBruto <= 0)){
+
+            action = "movStatus";
+            qtdStatus = Number(qtdAnteriorPreparado) + Number(quantidade);
+            qtd = Number(qtdAnteriorBruto) - Number(quantidade);
+
+        }else if(type == "2" && status == "1" && !(qtdAnteriorBruto <= 0)){
+
+            action = "movStatus";
+            qtdStatus = Number(qtdAnterior) + Number(quantidade);
+            qtd = Number(qtdAnteriorPreparado) - Number(quantidade);
 
         }else if(type == "1" && qtdAnterior <= "0"){
             alert("não é possivel diminuir a quantidade")
             return;
-        }else if(type == "2" && (qtdAnterior <= 0 || qtdAnteriorBruto <= 0 || qtdAnteriorPreparado <= 0)){
+        }else if(type == "2" && status == "0" && qtdAnteriorBruto <= 0){
+            alert("não é possivel diminuir a quantidade")
+            return;
+        }else if(type == "2" && status == "1" && qtdAnteriorPreparado <= 0){
             alert("não é possivel diminuir a quantidade")
             return;
         }
@@ -147,6 +155,7 @@ export default function MovEstoque(props: MovProps){
                     acompanhante: acompanhante,
                     pessoas: pessoas,
                     tabela: tabela,
+                    materialNovoStatus: materialNovoStatus,
                     action: action
                 })
             })

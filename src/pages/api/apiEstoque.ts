@@ -92,6 +92,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             acompanhante,
             pessoas,
             tabela,
+            materialNovoStatus,
             action
         }=req.body;
 
@@ -102,25 +103,47 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             id = 'n_id_materiaprima';
         }else if (tabela == "1"){
             table = "item";
+            qtdTabela = "n_qtde_item";
+            id = "n_id_item";
         }else if (tabela == "2"){
             table = "produto";
+            qtdTabela = "n_qtd_estoque";
+            id = "n_id_produto";
         }else{
             return res.status(500).json({message:"Sem informação da tabela"});
         }
         
         if(action == 'movEntrada'){
-            try {
-                const connection = await pool.getConnection();
+            if(tabela == "2"){
+                try {
+                    const connection = await pool.getConnection();
 
-                const query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
-                const [rows] = await connection.query<RowDataPacket[]>(query,[qtd,material])
+                    const query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows] = await connection.query<RowDataPacket[]>(query,[qtd,material]);
 
-                connection.release()
-                const dataReturn=rows[0]
-                return res.status(200).json({dataReturn});
-            }catch(error){
-                console.error(error)
-                return res.status(500).json({message:"Internal Server Error"});
+                    
+
+                    connection.release()
+                    const dataReturn=rows[0]
+                    return res.status(200).json({dataReturn});
+                }catch(error){
+                    console.error(error)
+                    return res.status(500).json({message:"Internal Server Error"});
+                }
+            }else{
+                try {
+                    const connection = await pool.getConnection();
+
+                    const query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                    const [rows] = await connection.query<RowDataPacket[]>(query,[qtd,material])
+
+                    connection.release()
+                    const dataReturn=rows[0]
+                    return res.status(200).json({dataReturn});
+                }catch(error){
+                    console.error(error)
+                    return res.status(500).json({message:"Internal Server Error"});
+                }
             }
         }else if(action == 'movSaida'){
             try {
@@ -138,16 +161,15 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             }
         }else if(action == 'movStatus'){
             let query;
-            if(qtdStatus >= 0){
+            if(materialNovoStatus != "" && materialNovoStatus != undefined){
                 try {
                     const connection = await pool.getConnection();
-    
-                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
-                    const [rows1] = await connection.query<RowDataPacket[]>(query,[])
-    
                     
-                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
-                    const [rows2] = await connection.query<RowDataPacket[]>(query,[])
+                    query=`update item SET n_qtde_item = ? WHERE n_id_item = ?;`
+                    const [rows1] = await connection.query<RowDataPacket[]>(query,[qtdStatus, materialNovoStatus])
+    
+                    query=`update materiaprima SET n_qtde_materiaprimaPreparado = ? WHERE n_id_materiaprima = ?;`
+                    const [rows2] = await connection.query<RowDataPacket[]>(query,[qtd, material])
     
                     connection.release()
                     const dataReturn=rows1[0]
@@ -159,16 +181,12 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             }else{
                 try {
                     const connection = await pool.getConnection();
-    
-                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
-                    const [rows1] = await connection.query<RowDataPacket[]>(query,[])
-    
                     
-                    query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
-                    const [rows2] = await connection.query<RowDataPacket[]>(query,[])
+                    query=`update materiaprima SET n_qtde_materiaprimaPreparado = ?,n_qtde_materiaprimaBruto = ? WHERE n_id_materiaprima = ?;`
+                    const [rows2] = await connection.query<RowDataPacket[]>(query,[qtdStatus, qtd, material])
     
                     connection.release()
-                    const dataReturn=rows1[0]
+                    const dataReturn=rows2[0]
                     return res.status(200).json({dataReturn});
                 }catch(error){
                     console.error(error)
