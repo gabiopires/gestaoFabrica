@@ -4,10 +4,12 @@ interface MovProps {
     set: (value: boolean) => void;
 }
 
+
+
 export default function MovEstoque(props: MovProps){
 
     const [type, setType] = useState("0");
-    const [material, setMaterial] = useState("");
+    const [materialId, setMaterialId] = useState("");
     const [quantidade, SetQuantidade] = useState("");
     const [date, setDate] = useState("");
     const [fornecedor, setFornecedor] = useState("");
@@ -15,7 +17,7 @@ export default function MovEstoque(props: MovProps){
     const [emailSolicitante, setEmailSolicitante] = useState("");
     const [status, setStatus] = useState("");
     const [acompanhante, setAcompanhante] = useState("");
-    const [item, setItem] = useState("");
+    const [itemFabricado, setItemFabricado] = useState("");
     const [itemData, setItemData] = useState<{id: number, nome: string, qtd: number}[]>([]);
     const [materialData, setMaterialData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialStatus, setMaterialStatus] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
@@ -65,7 +67,7 @@ export default function MovEstoque(props: MovProps){
 
 
     function confirmData(){
-        if(material == ""){
+        if(materialId == ""){
             alert("Informe um material");
         }else if(quantidade == "" || quantidade <= "0"){
             alert("Informe uma quantidade valida");
@@ -80,63 +82,84 @@ export default function MovEstoque(props: MovProps){
         }else if(type == "2" && acompanhante == ""){
             alert("Informe quem acompanhou a parodução");
         }else{
-            let tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
-            materialData.map((a)=>{
-                if(material == a.id){
-                    tabela = a.tabela;
-                    if(tabela == "0"){
-                        qtdAnteriorBruto = a.qtdBruto;
-                        qtdAnteriorPreparado = a.qtdPreparado;
-                    }else{
-                        qtdAnterior = a.qtd;
-                    }
-                }
-
-                if(item != "" && item == a.id){
-                    qtdAnterior = a.qtd;
-                    materialNovoStatus = a.id;
-                }
-            })
-            SaveData(tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado);
+            FiltrarFunção()
         }
     }
 
-    async function SaveData(tabela: any, materialNovoStatus: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado: any){
-        let action, qtd, qtdStatus = -1;
-        
-        if(type == "0"){
+    function FiltrarFunção(){
+        let tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
+        materialData.map((a)=>{
 
-            action = "movEntrada";
-            qtd = Number(quantidade) + Number(qtdAnterior);
+            //pegando as informações de tabela e qtd anteriores do material
+            if(materialId == a.id){
+                tabela = a.tabela;
+                //se a tabela for igual a 0 quer dizer que é um material bruto ou preparado, então precisamos
+                // sabeer a informação da qtd anterior bruta e preparado
+                if(tabela == "0"){
+                    qtdAnteriorBruto = a.qtdBruto;
+                    qtdAnteriorPreparado = a.qtdPreparado;
+                }else{
+                    qtdAnterior = a.qtd;
+                }
+            }
 
-        }else if(type == "1" && qtdAnterior > "0"){
+            //pegando as informações do item se a pessoa está mov. o status de um item preparado para item produzido
+            if(itemFabricado != "" && itemFabricado == a.id){
+                qtdAnterior = a.qtd;
+                materialNovoStatus = a.id;
+            }
+        })
 
-            action = "movSaida";
-            qtd = Number(qtdAnterior) - Number(quantidade);
-
-        }else if(type == "2" && status == "0" && !(qtdAnteriorBruto <= 0)){
-
-            action = "movStatus";
-            qtdStatus = Number(qtdAnteriorPreparado) + Number(quantidade);
-            qtd = Number(qtdAnteriorBruto) - Number(quantidade);
-
-        }else if(type == "2" && status == "1" && !(qtdAnteriorBruto <= 0)){
-
-            action = "movStatus";
-            qtdStatus = Number(qtdAnterior) + Number(quantidade);
-            qtd = Number(qtdAnteriorPreparado) - Number(quantidade);
-
-        }else if(type == "1" && qtdAnterior <= "0"){
-            alert("não é possivel diminuir a quantidade")
-            return;
-        }else if(type == "2" && status == "0" && qtdAnteriorBruto <= 0){
-            alert("não é possivel diminuir a quantidade")
-            return;
-        }else if(type == "2" && status == "1" && qtdAnteriorPreparado <= 0){
-            alert("não é possivel diminuir a quantidade")
-            return;
+        if(tabela == "2" && type == "0"){
+            //se for um produto pronto, vai buscar todos os itens do produto para descontara qtd de itens utilizados
+            getProdutoItemData(tabela, qtdAnterior);
+        }else if(type == "0"){
+            EntradaMaterial(tabela, qtdAnterior, materialId);
+        }else if(type == "1"){
+            SaidaMaterial(tabela, qtdAnterior, materialId);
+        }else if(type == "2"){
+            MovMaterial(tabela, materialId, qtdAnterior, qtdAnteriorPreparado, qtdAnteriorBruto);
         }
+    }
 
+    async function getProdutoItemData(tabela: any, qtdAnterior: any){
+        try {
+            const endpoint = `/api/apiEstoque?action=getProduto_item&data=${materialId}`
+            const response = await fetch(endpoint, { cache: "reload", method: "GET" })
+            if(response.status === 200){
+                const returnDataApi = await response.json();
+
+                //valida o estoque dos items do produto
+                let validarEstoque = true;
+                returnDataApi.dataReturn.map((a: {n_id_item:number, n_qtde_item:number})=>{
+                    if(a.n_qtde_item <= 0 || a.n_qtde_item < Number(quantidade)){
+                        validarEstoque = false;
+                    }
+                })
+
+                //Se tiver estoque, vai ser decontado a qtd necessaria para cada item
+                if(validarEstoque == true){
+                    returnDataApi.dataReturn.map((a: {n_id_item:number, n_qtde_item:number})=>{
+                        if(a.n_qtde_item >= 0){
+                            SaidaItemProduto(a.n_qtde_item - qtdAnterior, a.n_id_item)
+                        }
+                    })
+                    // adicionar a quantidade no produto final
+                    EntradaMaterial(tabela, qtdAnterior, materialId); 
+                }else{
+                    alert("Estoque insuficiente para o produto");
+                }
+
+            }else{
+                console.error(`Error ${response.status}`)
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error)
+        }
+    }
+
+    //função para descontar 1 unidade de cada item do produto
+    async function SaidaItemProduto(qtd: number, materialId: number){
         try {
             const endpoint = `/api/apiEstoque`
             const response = await fetch(endpoint, { 
@@ -144,19 +167,10 @@ export default function MovEstoque(props: MovProps){
                 headers:{'Content-Type':'application/json'},
                 method: "PUT",
                 body: JSON.stringify({
-                    material: material,
+                    material: materialId,
                     qtd: qtd,
-                    qtdStatus: qtdStatus,
-                    date: date,
-                    fornecedor: fornecedor,
-                    solicitante: solicitante,
-                    emailSolicitante: emailSolicitante,
-                    status: status,
-                    acompanhante: acompanhante,
-                    pessoas: pessoas,
-                    tabela: tabela,
-                    materialNovoStatus: materialNovoStatus,
-                    action: action
+                    tabela: "1",
+                    action: "movSaida"
                 })
             })
             if (response.status === 200) {
@@ -168,11 +182,87 @@ export default function MovEstoque(props: MovProps){
         } catch (error) {
             console.error("Error fetching data:", error)
         }
-        props.set(false);
     }
 
-    async function getInitData(){
+    async function EntradaMaterial(tabela: any, qtdAnterior: any, materialId: string){
+        const qtd = Number(quantidade) + Number(qtdAnterior);
+        try{
+            const endpoint = `/api/apiEstoque`
+            const response = await fetch(endpoint, { 
+                cache: "reload", 
+                headers:{'Content-Type':'application/json'},
+                method: "PUT",
+                body: JSON.stringify({
+                    material: materialId,
+                    qtd: qtd,
+                    date: date,
+                    fornecedor: fornecedor,
+                    tabela: tabela,
+                    action: "movEntrada"
+                })
+            })
+            if(response.status === 200) {
+                const returnDataApi = await response.json();
+            }else{
+                console.error(`Error ${response.status}`)
+            }
+        }catch(error){
+            console.error("Error fetching data:", error)
+        }
+    }
 
+    async function SaidaMaterial(tabela: any, qtdAnterior: any, materialId: string){
+        const qtd = Number(qtdAnterior) - Number(quantidade);
+    }
+
+    async function MovMaterial(tabela: any, materialId: string, qtdAnterior: any, qtdAnteriorPreparado: any, qtdAnteriorBruto: any){
+        let qtd, qtdStatus = -1;
+        if(status == "0" && !(qtdAnteriorBruto <= 0)){
+
+            qtdStatus = Number(qtdAnteriorPreparado) + Number(quantidade);
+            qtd = Number(qtdAnteriorBruto) - Number(quantidade);
+
+        }else if(status == "1" && !(qtdAnteriorBruto <= 0)){
+
+            qtdStatus = Number(qtdAnterior) + Number(quantidade);
+            qtd = Number(qtdAnteriorPreparado) - Number(quantidade);
+
+        }
+    }
+
+    async function SaveData(tabela: any, materialNovoStatus: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado: any){
+        try {
+            const endpoint = `/api/apiEstoque`
+            const response = await fetch(endpoint, { 
+                cache: "reload", 
+                headers:{'Content-Type':'application/json'},
+                method: "PUT",
+                // body: JSON.stringify({
+                //     material: materialId,
+                //     qtd: qtd,
+                //     qtdStatus: qtdStatus,
+                //     date: date,
+                //     fornecedor: fornecedor,
+                //     solicitante: solicitante,
+                //     emailSolicitante: emailSolicitante,
+                //     status: status,
+                //     acompanhante: acompanhante,
+                //     pessoas: pessoas,
+                //     tabela: tabela,
+                //     materialNovoStatus: materialNovoStatus,
+                //     action: action
+                // })
+            })
+            if (response.status === 200) {
+                const returnDataApi = await response.json()
+
+            } else {
+                console.error(`Error ${response.status}`)
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error)
+        }
+        props.set(false);
     }
 
     return(
@@ -195,7 +285,7 @@ export default function MovEstoque(props: MovProps){
                         <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 md:gap-0 w-full md:ml-3'>
                             <div className='h-full flex flex-col gap-2 justify-center items-start'>
                                 <p className='ml-2'>Material:</p>
-                                <select className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-[200px]' value={material} onChange={(evt)=>{setMaterial(evt.target.value)}}>
+                                <select className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-[200px]' value={materialId} onChange={(evt)=>{setMaterialId(evt.target.value)}}>
                                     <option value="" hidden>Selecione</option>
                                     {type != "2" ?
                                         <>
@@ -247,8 +337,8 @@ export default function MovEstoque(props: MovProps){
                             <div className='h-full flex flex-col gap-2 justify-center items-start'>
                                 {status == "1" &&
                                      <>
-                                        <p className='ml-2'>Item produzido:</p>
-                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={item} onChange={(evt)=>{setItem(evt.target.value)}}>
+                                        <p className='ml-2'>Item fabricado:</p>
+                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={itemFabricado} onChange={(evt)=>{setItemFabricado(evt.target.value)}}>
                                             <option value="" hidden>Selecione</option>
                                             {itemData.map((p, index)=>(
                                                 <option key={index} value={p.id}>{p.nome}</option>
