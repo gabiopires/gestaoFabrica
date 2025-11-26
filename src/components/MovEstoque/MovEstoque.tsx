@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import Entrada from "./Entrada"
+import Saida from "./Saida"
 
 interface MovProps {
     set: (value: boolean) => void;
 }
-
-
 
 export default function MovEstoque(props: MovProps){
 
@@ -21,7 +21,10 @@ export default function MovEstoque(props: MovProps){
     const [itemData, setItemData] = useState<{id: number, nome: string, qtd: number}[]>([]);
     const [materialData, setMaterialData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialStatus, setMaterialStatus] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto?: string, qtdPreparado?: string}[]>([]);
-    const [pessoas, setPessas] = useState<{id: number, nome: string}[]>([])
+    const [pessoas, setPessas] = useState<{id: number, nome: string}[]>([]);
+    const [seeEntrada, setSeeEntrada] = useState(true);
+    const [seeSaida, setSeeSaida] = useState(false);
+    const [seeItems, setSeeItems] = useState(false);
 
     useEffect(()=>{
         carregarMateriais()
@@ -89,12 +92,11 @@ export default function MovEstoque(props: MovProps){
     function FiltrarFunção(){
         let tabela, materialNovoStatus, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado;
         materialData.map((a)=>{
-
             //pegando as informações de tabela e qtd anteriores do material
             if(materialId == a.id){
                 tabela = a.tabela;
                 //se a tabela for igual a 0 quer dizer que é um material bruto ou preparado, então precisamos
-                // sabeer a informação da qtd anterior bruta e preparado
+                // saber a informação da qtd anterior bruta ou preparado
                 if(tabela == "0"){
                     qtdAnteriorBruto = a.qtdBruto;
                     qtdAnteriorPreparado = a.qtdPreparado;
@@ -111,9 +113,9 @@ export default function MovEstoque(props: MovProps){
         })
 
         if(tabela == "2" && type == "0"){
-            //se for um produto pronto, vai buscar todos os itens do produto para descontara qtd de itens utilizados
+            //se for um produto pronto, vai buscar todos os itens do produto para descontar a qtd de itens utilizados
             getProdutoItemData(tabela, qtdAnterior);
-        }else if(type == "0"){
+        }else if(type == "0"){ 
             EntradaMaterial(tabela, qtdAnterior, materialId);
         }else if(type == "1"){
             SaidaMaterial(tabela, qtdAnterior, materialId);
@@ -136,7 +138,6 @@ export default function MovEstoque(props: MovProps){
                         validarEstoque = false;
                     }
                 })
-
                 //Se tiver estoque, vai ser decontado a qtd necessaria para cada item
                 if(validarEstoque == true){
                     returnDataApi.dataReturn.map((a: {n_id_item:number, n_qtde_item:number})=>{
@@ -149,7 +150,6 @@ export default function MovEstoque(props: MovProps){
                 }else{
                     alert("Estoque insuficiente para o produto");
                 }
-
             }else{
                 console.error(`Error ${response.status}`)
             }
@@ -175,7 +175,6 @@ export default function MovEstoque(props: MovProps){
             })
             if (response.status === 200) {
                 const returnDataApi = await response.json()
-
             } else {
                 console.error(`Error ${response.status}`)
             }
@@ -186,6 +185,7 @@ export default function MovEstoque(props: MovProps){
 
     async function EntradaMaterial(tabela: any, qtdAnterior: any, materialId: string){
         const qtd = Number(quantidade) + Number(qtdAnterior);
+        console.log(qtdAnterior)
         try{
             const endpoint = `/api/apiEstoque`
             const response = await fetch(endpoint, { 
@@ -213,6 +213,30 @@ export default function MovEstoque(props: MovProps){
 
     async function SaidaMaterial(tabela: any, qtdAnterior: any, materialId: string){
         const qtd = Number(qtdAnterior) - Number(quantidade);
+        try{
+            const endpoint = `/api/apiEstoque`
+            const response = await fetch(endpoint, { 
+                cache: "reload", 
+                headers:{'Content-Type':'application/json'},
+                method: "PUT",
+                body: JSON.stringify({
+                    material: materialId,
+                    qtd: qtd,
+                    date: date,
+                    tabela: tabela,
+                    action: "movSaida"
+                })
+            })
+            if(response.status === 200) {
+                const returnDataApi = await response.json();
+                alert("Produto descontado com sucesso!");
+                props.set(false);
+            }else{
+                console.error(`Error ${response.status}`)
+            }
+        }catch(error){
+            console.error("Error fetching data:", error)
+        }
     }
 
     async function MovMaterial(tabela: any, materialId: string, qtdAnterior: any, qtdAnteriorPreparado: any, qtdAnteriorBruto: any){
@@ -265,6 +289,25 @@ export default function MovEstoque(props: MovProps){
         props.set(false);
     }
 
+    function selecionarMov(type: string){
+        if(type == '0'){
+            setSeeEntrada(true);
+            setSeeSaida(false);
+            setSeeItems(false);
+            setType('0');
+        }else if (type == '1'){
+            setSeeSaida(true);
+            setSeeEntrada(false);
+            setSeeItems(false);
+            setType('1');
+        }else{
+            setSeeEntrada(false);
+            setSeeSaida(false);
+            setSeeItems(true);
+            setType('2');
+        }
+    }
+
     return(
         <div className='fixed z-[200] w-screen h-screen bg-[rgba(0,0,0,0.5)] flex justify-center items-center'>
             <div className='h-[80%] md:w-[60%] w-[90%] bg-white rounded-xl flex flex-col'>
@@ -275,100 +318,20 @@ export default function MovEstoque(props: MovProps){
                 <div className='w-[100%] h-[90%] rounded-b-xl md:pl-5 pl-2 md:pr-5 pr-2 flex flex-col gap-4'>
                     <div className='w-[100%] h-[25%] flex flex-col justify-end gap-2 pl-2'>
                         <p className='text-sm'>Tipo de movimentação</p>
-                        <select className='md:w-[30%] border-2 rounded-xl p-1 text-sm' value={type} onChange={(evt)=>{setType(evt.target.value)}}>
-                            <option value="0">Entrada</option>
-                            <option value="1">Saida</option>
-                            <option value="2">Alterar Status</option>
+                        <select className='md:w-[45%] border-2 rounded-xl p-1 text-sm' value={type} onChange={(evt)=>{selecionarMov(evt.target.value)}}>
+                            <option value="0">Entrada de produto pronto/materia prima</option>
+                            <option value="1">Saida de produto pronto/materia prima</option>
+                            <option value="2">Gerenciar items produzidos</option>
                         </select>
                     </div>
-                    <div className='border-2 w-[100%] h-[75%] mb-5 rounded-xl flex md:flex-col flex-wrap md:flex-nowrap overflow-auto overflow-x-hidden pt-5 gap-5 pb-5'>
-                        <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 md:gap-0 w-full md:ml-3'>
-                            <div className='h-full flex flex-col gap-2 justify-center items-start'>
-                                <p className='ml-2'>Material:</p>
-                                <select className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-[200px]' value={materialId} onChange={(evt)=>{setMaterialId(evt.target.value)}}>
-                                    <option value="" hidden>Selecione</option>
-                                    {type != "2" ?
-                                        <>
-                                            {materialData.map((o, index)=>(
-                                                <option key={index} value={o.id}>{o.nome}</option>
-                                            ))}
-                                        </>
-                                    :   <>
-                                            {materialStatus.map((o, index)=>(
-                                                <option key={index} value={o.id}>{o.nome}</option>
-                                            ))}
-                                        </>
-                                    }
-                                </select>
-                            </div>
-                            <div className='h-full flex flex-col justify-center items-start md:pl-5 md:pr-5 gap-2'>
-                                <p className='ml-2'>Quantidade:</p>
-                                <input type='number' className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full' value={quantidade} onChange={(evt)=>{SetQuantidade(evt.target.value)}}></input>
-                            </div>
-                        </div>
-                        <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 md:gap-0 w-full md:ml-3'>
-                            <div className='h-full flex flex-col gap-2 justify-center items-start'>
-                                <p className='ml-2'>Data {type == "0" ? "de entrada:" : type == "1" ? "de saida:" : "da movimentação:"}</p>
-                                <input type='datetime-local' className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full h-[26px]' value={date} onChange={(evt)=>{setDate(evt.target.value)}}></input>
-                            </div>
-                            <div className='h-full flex flex-col justify-center items-start md:pl-5 md:pr-5 gap-2'>
-                                {type == "0" ? 
-                                    <>
-                                        <p className='ml-2'>Origem fornecedor</p>
-                                        <input type='text' className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full' value={fornecedor} onChange={(evt)=>{setFornecedor(evt.target.value)}}></input>
-                                    </>:
-                                type == "1" ?
-                                    <>
-                                        <p className='ml-2'>Nome do solicitante</p>
-                                        <input type='text' className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full' value={solicitante} onChange={(evt)=>{setSolicitante(evt.target.value)}}></input>
-                                    </>:
-                                    <>
-                                        <p className='ml-2'>Movimentar para:</p>
-                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={status} onChange={(evt)=>{setStatus(evt.target.value)}}>
-                                            <option value="" hidden>Selecione</option>
-                                            <option value="0">Preparado</option>
-                                            <option value="1">Item</option>
-                                        </select>
-                                    </>
-                                }
-                            </div>
-                        </div>
-                        <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 md:gap-5 w-full md:ml-3'>
-                            <div className='h-full flex flex-col gap-2 justify-center items-start'>
-                                {status == "1" &&
-                                     <>
-                                        <p className='ml-2'>Item fabricado:</p>
-                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={itemFabricado} onChange={(evt)=>{setItemFabricado(evt.target.value)}}>
-                                            <option value="" hidden>Selecione</option>
-                                            {itemData.map((p, index)=>(
-                                                <option key={index} value={p.id}>{p.nome}</option>
-                                            ))}
-                                        </select>
-                                    </>
-                                }
-                            </div>
-                            <div className='h-full flex flex-col gap-2 justify-center items-start'>
-                                {type == "1"?
-                                    <>
-                                        <p className='ml-2'>Email do solicitante</p>
-                                        <input type='text' className='border-2 rounded-lg pl-2 pr-2 w-[250px] md:w-full' value={emailSolicitante} onChange={(evt)=>{setEmailSolicitante(evt.target.value)}}></input>
-                                    </>:
-                                type == "2" &&
-                                    <>
-                                        <p className='ml-2'>Acompanhou a produção:</p>
-                                        <select className='border-2 rounded-lg pl-2 pr-2 md:mr-2 w-[250px] md:w-[170px] lg:w-[200px] mr-0' value={acompanhante} onChange={(evt)=>{setAcompanhante(evt.target.value)}}>
-                                            <option value="" hidden>Selecione</option>
-                                            {pessoas.map((p, index)=>(
-                                                <option key={index} value={p.id}>{p.nome}</option>
-                                            ))}
-                                        </select>
-                                    </>
-                                }
-                            </div>
-                        </div>
-                        <div className='md:w-[80%] w-[95%] flex justify-end items-end'>
-                            <button className='h-[30px] w-[120px] bg-[#53D420] rounded-xl text-white' onClick={()=>{confirmData()}}>Salvar</button>
-                        </div>
+                    <div className='border-2 w-[100%] h-[75%] mb-5 rounded-xl flex md:flex-col flex-wrap md:flex-nowrap overflow-auto overflow-x-hidden gap-5 pb-5'>
+                        {type == "0" ?
+                            <>{seeEntrada&&<Entrada onAction={()=>props.set(false)}/>}</>
+                        : type == "1" ? 
+                            <>{seeSaida&&<Saida onAction={()=>props.set(false)}/>}</>
+                        : 
+                            ""
+                        }
                     </div>
                 </div>
             </div>

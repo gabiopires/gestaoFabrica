@@ -111,22 +111,20 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             acompanhante,
             pessoas,
             tabela,
+            colunaTabela,
             materialNovoStatus,
             action
         }=req.body;
 
-        let table, qtdTabela, id;
+        let table, id;
         if (tabela == "0"){
             table = "materiaprima";
-            qtdTabela = 'n_qtde_materiaprima';
             id = 'n_id_materiaprima';
         }else if (tabela == "1"){
             table = "item";
-            qtdTabela = "n_qtde_item";
             id = "n_id_item";
         }else if (tabela == "2"){
             table = "produto";
-            qtdTabela = "n_qtd_estoque";
             id = "n_id_produto";
         }else{
             return res.status(500).json({message:"Sem informação da tabela"});
@@ -136,9 +134,8 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             try {
                 const connection = await pool.getConnection();
 
-                const query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                const query=`update ${table} SET ${colunaTabela} = ? WHERE ${id} = ?;`
                 const [rows] = await connection.query<RowDataPacket[]>(query,[qtd,material])
-
                 connection.release()
                 const dataReturn=rows[0]
                 return res.status(200).json({dataReturn});
@@ -150,7 +147,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
             try {
                 const connection = await pool.getConnection();
 
-                const query=`update ${table} SET ${qtdTabela} = ? WHERE ${id} = ?;`
+                const query=`update ${table} SET ${colunaTabela} = ? WHERE ${id} = ?;`
                 const [rows] = await connection.query<RowDataPacket[]>(query,[qtd,material])
 
                 connection.release()
