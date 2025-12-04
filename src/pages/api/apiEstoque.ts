@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
     if(req.method === "GET") {
         const{
             action,
-            data
+            data,
         }=req.query;
 
         if(action=="getInitData"){
@@ -75,21 +75,22 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                 console.error(error)
                 return res.status(500).json({message:"Internal Server Error"});
             }
-        }else if(action == "getProduto_item"){
+        }else if(action == "getItem_materiaprima"){
             try {
                 const connection = await pool.getConnection();
 
-                const query = `SELECT produto_item.n_id_item,
-                item.n_qtde_item 
-                from produto_item 
-                left join item
-                ON produto_item.n_id_item = item.n_id_item
-                where n_id_produto = ?`;
+                const query = `
+                    SELECT itemMP.n_id_materiaprima AS id,
+                        mp.n_qtde_materiaprimaPreparado AS qtdAnterior
+                    FROM item_materiaprima itemMP 
+                    JOIN materiaprima mp ON itemMP.n_id_materiaprima = mp.n_id_materiaprima
+                    WHERE itemMP.n_id_item = ?;
+                `;
                 const [rows_itemsProduto] = await connection.query<RowDataPacket[]>(query,[data]);
 
                 connection.release()
                 const dataReturn = rows_itemsProduto
-                return res.status(200).json({dataReturn});
+                return res.status(200).json(dataReturn[0]);
             }catch(error){
                 console.error(error)
                 return res.status(500).json({message:"Internal Server Error"});
@@ -157,43 +158,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                 console.error(error)
                 return res.status(500).json({message:"Internal Server Error"});
             }
-        }else if(action == 'movStatus'){
-            let query;
-            if(materialNovoStatus != "" && materialNovoStatus != undefined){
-                try {
-                    const connection = await pool.getConnection();
-                    
-                    query=`update item SET n_qtde_item = ? WHERE n_id_item = ?;`
-                    const [rows1] = await connection.query<RowDataPacket[]>(query,[qtdStatus, materialNovoStatus])
-    
-                    query=`update materiaprima SET n_qtde_materiaprimaPreparado = ? WHERE n_id_materiaprima = ?;`
-                    const [rows2] = await connection.query<RowDataPacket[]>(query,[qtd, material])
-    
-                    connection.release()
-                    const dataReturn=rows1[0]
-                    return res.status(200).json({dataReturn});
-                }catch(error){
-                    console.error(error)
-                    return res.status(500).json({message:"Internal Server Error"});
-                }
-            }else{
-                try {
-                    const connection = await pool.getConnection();
-                    
-                    query=`update materiaprima SET n_qtde_materiaprimaPreparado = ?,n_qtde_materiaprimaBruto = ? WHERE n_id_materiaprima = ?;`
-                    const [rows2] = await connection.query<RowDataPacket[]>(query,[qtdStatus, qtd, material])
-    
-                    connection.release()
-                    const dataReturn=rows2[0]
-                    return res.status(200).json({dataReturn});
-                }catch(error){
-                    console.error(error)
-                    return res.status(500).json({message:"Internal Server Error"});
-                }
-            }
-            
         }
-        
     }else{
         res.status(405).json({message:"Method not allowed" });
     }

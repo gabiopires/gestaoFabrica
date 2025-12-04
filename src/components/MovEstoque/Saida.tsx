@@ -3,7 +3,8 @@ import Alerta from "../Alerta/Alerta";
 import { TypeDataAlerta } from "../type"
 
 interface dataSaida {
-    onAction: ()=>void
+    onAction: ()=>void,
+    onAddItem: ()=>void
 }
 
 let dataAlerta: TypeDataAlerta = {
@@ -149,7 +150,7 @@ export default function Saida(props: dataSaida){
                     dataAlerta = {
                         title: "Estoque movimentado com sucesso! Deseja movimentar os materiais preparados para itens fabricados?",
                         buttonTitle: ["Não", "Sim"],
-                        buttonAction: [()=>{setSeeAlerta(false);props.onAction()}, ()=>{setSeeAlerta(false);AddEstoqueItem()}]
+                        buttonAction: [()=>{setSeeAlerta(false);props.onAction()}, ()=>{setSeeAlerta(false), props.onAddItem()}],
                     }
                 }else if(typeMaterial == 'typeBruto'){
                     setSeeAlerta(true);
@@ -231,16 +232,6 @@ export default function Saida(props: dataSaida){
                 buttonTitle: ["Ok"],
                 buttonAction: [()=>{setSeeAlerta(false);props.onAction()}]
             }
-        }
-    }
-
-    function AddEstoqueItem(){
-        setSeeAlerta(true);
-        dataAlerta = {
-            title: "",
-            buttonTitle: [""],
-            buttonAction: [],
-            movItem: true
         }
     }
 

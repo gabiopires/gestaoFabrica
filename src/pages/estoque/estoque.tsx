@@ -4,7 +4,6 @@ import MovEstoque from "../../components/MovEstoque/MovEstoque"
 
 export default function PaginaEstoque() {
 
-    // const [produto, setProduto] = useState([100, 200, 300, 400, 500]);
     const [bruto, setBruto] = useState<{id: number, nome: string, qtdBruto: number, qtdPreparado: number}[]>([]);
     const [item, setItem] = useState<{id: number, nome: string, qtd: number}[]>([]);
     const [movEstoque, setMovEstoque] = useState(false);
@@ -18,8 +17,6 @@ export default function PaginaEstoque() {
     const metricsEntreProdutos = [{item: "Macete", qtdFinalizado: 300, qtdPronto: 100,},{item: "Garrafinha", qtdFinalizado: 300, qtdPronto: 100,}]
 
     async function carregarEstoques(){
-        // const k = JSON.parse(data).key;
-        // const key = k.s_key_apiKey
         try {
             const endpoint = `/api/apiEstoque?action=getInitData`
             const response = await fetch(endpoint, { cache: "reload", method: "GET" })

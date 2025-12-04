@@ -1,7 +1,15 @@
 import React, {useState, useEffect} from 'react';
+import Alerta from "../Alerta/Alerta";
+import { TypeDataAlerta } from "../type"
 
 interface dataEntrada {
     onAction: ()=>void
+}
+
+let dataAlerta: TypeDataAlerta = {
+    title: "",
+    buttonTitle: [""],
+    buttonAction: [()=>{}],
 }
 
 export default function Entrada(props: dataEntrada){
@@ -13,6 +21,7 @@ export default function Entrada(props: dataEntrada){
     const [typeMaterial, setTypeMaterial] = useState('')
     const [materialBrutoData, setMaterialBrutoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialProntoData, setMaterialProntoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
+    const [seeAlerta, setSeeAlerta] = useState(false);
 
     useEffect(()=>{
         carregarMateriais();
@@ -36,13 +45,33 @@ export default function Entrada(props: dataEntrada){
 
     function confirmData(){
         if(materialId == ""){
-            alert("Informe um material");
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: "Informe um material",
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false);}]
+            }
         }else if(quantidade == "" || quantidade <= "0"){
-            alert("Informe uma quantidade valida");
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: "Informe uma quantidade valida",
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false)}]
+            }
         }else if(date == ""){
-            alert("Informe a data");
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: "Informe a data",
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false)}]
+            }
         }else if(fornecedor == ''){
-            alert("Informe um fornecedor");
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: "Informe um fornecedor.",
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false)}]
+            }
         }else{
             FiltrarFunção()
         }
@@ -67,7 +96,12 @@ export default function Entrada(props: dataEntrada){
             }
         })
         if(Number(qtdAnteriorBruto) < Number(quantidade)){
-            alert(`Não existe material bruto suficiente para preparar ${quantidade} ${nome}`);
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: `Não existe material bruto suficiente para preparar ${quantidade} ${nome}`,
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false)}]
+            }
             return;
         }else{
             EntradaMaterial(tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado, materialId);
@@ -75,7 +109,7 @@ export default function Entrada(props: dataEntrada){
     }
 
     async function EntradaMaterial(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado:any,  materialId: string){
-        let qtdAtual, qtdBrutoAtual, coluna;
+        let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaBruto";
         let diminuiuBruto = true;
         if(typeMaterial == "typePreparado"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorPreparado);
@@ -107,18 +141,35 @@ export default function Entrada(props: dataEntrada){
                     })
                 })
                 if(response.status === 200) {
-                    alert("movimentação concluída com sucesso!");
-                    props.onAction();
+                    setSeeAlerta(true);
+                    dataAlerta = {
+                        title: "Estoque movimentado com sucesso!",
+                        buttonTitle: ["Ok"],
+                        buttonAction: [()=>{setSeeAlerta(false);props.onAction()}]
+                    }
                 }else{
-                    console.error(`Error ${response.status}`)
-                    alert("Não foi possível realizar movimentação. Tente novamente mais tarde.");
+                    setSeeAlerta(true);
+                    dataAlerta = {
+                        title: "Não foi possível realizar movimentação. Tente novamente mais tarde.",
+                        buttonTitle: ["Ok"],
+                        buttonAction: [()=>{setSeeAlerta(false);props.onAction()}]
+                    }
                 }
             }catch(error){
-                console.error("Error fetching data:", error)
-                alert("Não foi possível realizar movimentação. Tente novamente mais tarde.");
+                setSeeAlerta(true);
+                dataAlerta = {
+                    title: "Não foi possível realizar movimentação. Tente novamente mais tarde.",
+                    buttonTitle: ["Ok"],
+                    buttonAction: [()=>{setSeeAlerta(false);props.onAction()}]
+                }
             }
         }else{
-            alert("Não foi possível realizar movimentação. Tente novamente mais tarde.");
+            setSeeAlerta(true);
+            dataAlerta = {
+                title: "Não foi possível realizar movimentação. Tente novamente mais tarde.",
+                buttonTitle: ["Ok"],
+                buttonAction: [()=>{setSeeAlerta(false);props.onAction()}]
+            }
         }
     }
 
@@ -153,7 +204,7 @@ export default function Entrada(props: dataEntrada){
 
     return(
         <div className='w-full'>
-            
+            {seeAlerta&&<Alerta dataAlerta={dataAlerta}/>}
             <div className='md:h-[80px] flex flex-col md:flex-row justify-center items-center gap-5 w-full md:ml-3 mt-5 md:mt-0'>
                 <div className='h-full flex flex-col gap-2 justify-center items-start'>
                     <p className='ml-2'>Tipo de material:</p>
