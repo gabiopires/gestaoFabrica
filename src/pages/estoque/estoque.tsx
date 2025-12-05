@@ -6,6 +6,12 @@ export default function PaginaEstoque() {
 
     const [bruto, setBruto] = useState<{id: number, nome: string, qtdBruto: number, qtdPreparado: number}[]>([]);
     const [item, setItem] = useState<{id: number, nome: string, qtd: number}[]>([]);
+    const [produto, setProduto] = useState<{id: number, nome: string, qtd: number}[]>([]);
+    const [mov, setMov] = useState<{
+        acompanhante: string, data_movimentacao: string, estoque: number, qtd_movimentada: string, 
+        nome_solicitante:string, status_movimentacao: string,email_solicitante: string,
+        fornecedor:string, n_id_estoque_movimentacao: number
+    }[]>([]);
     const [movEstoque, setMovEstoque] = useState(false);
 
     useEffect(()=>{
@@ -22,6 +28,8 @@ export default function PaginaEstoque() {
             const response = await fetch(endpoint, { cache: "reload", method: "GET" })
             if (response.status === 200) {
                 const returnDataApi = await response.json()
+                setProduto(returnDataApi.produto)
+                setMov(returnDataApi.movimentacao)
                 setBruto(returnDataApi.bruto)
                 setItem(returnDataApi.item)
             } else {
@@ -32,6 +40,19 @@ export default function PaginaEstoque() {
         }
     }
 
+    const editDateTime = (data: string) => {
+        const date = new Date(data);
+    
+        const dd = String(date.getDate()).padStart(2, '0');  
+        const mm = String(date.getMonth() + 1).padStart(2, '0');  
+        const yyyy = date.getFullYear(); 
+    
+        const hh = String(date.getHours()).padStart(2, '0');  
+        const mi = String(date.getMinutes()).padStart(2, '0'); 
+    
+        return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+      };
+
     return (
         <div className='h-screen overflow-hidden'>
             {movEstoque && <MovEstoque set={setMovEstoque}/>}
@@ -40,18 +61,18 @@ export default function PaginaEstoque() {
                 <div className='bg-[#1394DA] md:w-[calc(100%-60px)] w-full h-[80px] shadow-[0_5px_5px_rgba(0,0,0,0.3)] flex justify-center items-end'>
                     <p className='ml-[10%] mt-4 mb-4 text-2xl text-white'>Estoque</p>
                     <div className='h-full w-full flex md:flex-row flex-col justify-end items-end gap-2'>
-                        <select className='md:w-[250px] w-[150px] h-[30px] md:mb-4 md:mr-10 ml-5 mr-5 rounded-xl bg-[#FFF] shadow-[0px_3px_10px_rgba(0,0,0,0.3)] cursor-pointer'>
+                        {/* <select className='md:w-[250px] w-[150px] h-[30px] md:mb-4 md:mr-10 ml-5 mr-5 rounded-xl bg-[#FFF] shadow-[0px_3px_10px_rgba(0,0,0,0.3)] cursor-pointer'>
                             <option>Todos</option>
                             <option>Macete</option>
                             <option>Garrafinha</option>
-                        </select>
+                        </select> */}
                         <button className='md:mb-4 mb-2 md:w-[250px] w-[180px] md:mr-[10%] mr-2 h-[30px] rounded-2xl bg-[#FFF] shadow-[0px_3px_10px_rgba(0,0,0,0.3)] hover:bg-slate-300 transition duration-300' onClick={()=>{setMovEstoque(true)}}>
                             Movimentar estoque
                         </button>
                     </div>
                 </div>
                 <div className='w-[100%] md:w-[calc(100%-60px)] h-[calc(100%-80px)] flex flex-col items-center overflow-auto'>
-                    <div className='md:min-h-[70px] md:w-[80%] w-[90%] flex flex-col border-b-0 border-r-0 mt-5 border-2'>
+                    {/* <div className='md:min-h-[70px] md:w-[80%] w-[90%] flex flex-col border-b-0 border-r-0 mt-5 border-2'>
                         <div className='flex h-full overflow-hidden md:flex-nowrap flex-wrap'>
                             {metricsProduto.map((a,index)=>(
                                 <div key={index} className='w-[50%] h-[65px] md:h-full flex border-b-2 items-center justify-center text-sm text-center'>
@@ -60,7 +81,7 @@ export default function PaginaEstoque() {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
                     <div className='md:w-[80%] w-[90%] md:h-[100%] flex md:flex-row flex-col'>
                         <div className='w-[100%] flex flex-col md:h-[100%] h-auto'>
                             <div className='md:h-[60%] h-auto'>
@@ -91,11 +112,11 @@ export default function PaginaEstoque() {
                                         <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Prontos para montar</p>
                                     </div>
                                     <div className='h-auto overflow-auto'>
-                                        {metricsEntreProdutos.map((a,index)=>(
+                                        {produto.map((a,index)=>(
                                             <div key={index} className='border-b-2 h-[35px] flex'>
-                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.item}</p>
-                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdFinalizado}</p>
-                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtdPronto}</p>
+                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
+                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
+                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -121,20 +142,22 @@ export default function PaginaEstoque() {
                         </div>
                     </div>
                     <div className='md:w-[80%] w-[90%] md:h-[100%]'>
-                        <div className='w-[100%] md:h-[100%] pt-4'>
+                        <div className='w-[100%] md:h-[100%] mb-5'>
                             <p className='mt-5 md:mt-0 md:mr-12 md:ml-12 ml-8 mb-2'>Movimentações dos últimos 30 dias</p>
                             <div className='border-2 md:mr-10 md:ml-10 h-[calc(100%-40px)] rounded-lg'>
-                                <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex md:pr-3'>
+                                <div className='bg-[#EEEEEE] h-[35px] rounded-t-lg flex'>
                                     <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Material</p>
-                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Quantidade</p>
-                                    <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Data</p>
+                                    <p className='w-[30%] flex items-center justify-center text-sm text-center leading-none'>Quantidade</p>
+                                    <p className='w-[30%] flex items-center justify-center text-sm text-center leading-none'>Data</p>
                                     <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>Movimentação</p>
                                 </div>
                                 <div className='md:h-[calc(100%-35px)] h-auto md:overflow-auto'>
-                                    {item.map((a,index)=>(
+                                    {mov.map((a,index)=>(
                                         <div key={index} className='border-b-2 h-[35px] flex'>
-                                            <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
-                                            <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
+                                            <p className='w-[50%] flex items-center justify-center md:text-sm text-xs text-center leading-none p-0.5'>{a.estoque}</p>
+                                            <p className='w-[30%] flex items-center justify-center md:text-sm text-xs text-center leading-none p-0.5'>{a.qtd_movimentada}</p>
+                                            <p className='w-[30%] flex items-center justify-center md:text-sm text-xs text-center leading-none p-0.5'>{editDateTime(a.data_movimentacao)}</p>
+                                            <p className='w-[50%] flex items-center justify-center md:text-sm text-xs text-center leading-none p-0.5'>{a.status_movimentacao}</p>
                                         </div>
                                     ))}
                                 </div>

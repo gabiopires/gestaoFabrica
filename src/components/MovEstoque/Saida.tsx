@@ -87,7 +87,7 @@ export default function Saida(props: dataSaida){
     }
 
     function FiltrarFunção(){
-        let tabela, qtdAnterior, coluna, qtdAnteriorPreparado;
+        let tabela, qtdAnterior, coluna, qtdAnteriorPreparado, status;
 
         if(typeMaterial == "typePronto"){
             materialProntoData.map((a)=>{
@@ -95,6 +95,7 @@ export default function Saida(props: dataSaida){
                     tabela = a.tabela;
                     qtdAnterior = a.qtd;
                     coluna = 'n_qtd_estoque';
+                    status = 'Saida de Produto Final'
                 }
             })
         }else{
@@ -104,11 +105,13 @@ export default function Saida(props: dataSaida){
                         tabela = a.tabela;
                         qtdAnterior = a.qtdPreparado;
                         coluna = 'n_qtde_materiaprimaPreparado';
+                        status = 'Saida de Materia Prima Preparada'
                     }else if(typeMaterial == "typeBruto"){
                         tabela = a.tabela;
                         qtdAnterior = a.qtdBruto;
                         qtdAnteriorPreparado = a.qtdPreparado;
                         coluna = 'n_qtde_materiaprimaBruto';
+                        status = 'Saida de Materia Prima Bruta'
                     }
                 }
             })
@@ -123,11 +126,11 @@ export default function Saida(props: dataSaida){
             }
             return;
         }else{
-            SaidaMaterial(tabela, qtdAnterior, qtdAnteriorPreparado, coluna);
+            SaidaMaterial(tabela, qtdAnterior, qtdAnteriorPreparado, coluna, status);
         }
     }
 
-    async function SaidaMaterial(tabela: any, qtdAnterior:any, qtdAnteriorPreparado:any, coluna: any){
+    async function SaidaMaterial(tabela: any, qtdAnterior:any, qtdAnteriorPreparado:any, coluna: any, status: any){
         let qtd = Number(qtdAnterior) - Number(quantidade)
         try{
             const endpoint = `/api/apiEstoque`
@@ -138,10 +141,16 @@ export default function Saida(props: dataSaida){
                 body: JSON.stringify({
                     material: materialId,
                     qtd: qtd,
+                    qtdDigitada: quantidade,
                     date: date,
+                    fornecedor: "",
+                    solicitante: nomeSolicitante,
+                    emailSolicitante: emailSolicitante,
+                    acompanhante: "",
                     tabela: tabela,
                     colunaTabela: coluna,
-                    action: "movSaida"
+                    action: "movSaida",
+                    status: status
                 })
             })
             if(response.status === 200) {
@@ -200,12 +209,16 @@ export default function Saida(props: dataSaida){
                 body: JSON.stringify({
                     material: materialId,
                     qtd: qtdAtual,
+                    qtdDigitada: quantidade,
                     date: date,
-                    solicitante: nomeSolicitante,
-                    emailSolicitante: emailSolicitante,
+                    fornecedor: "Movimentação Interna",
+                    solicitante: "",
+                    emailSolicitante: "",
+                    acompanhante: "", //futuramente adicionar o usuario logado
                     tabela: "0",
                     colunaTabela: "n_qtde_materiaprimaPreparado",
-                    action: "movEntrada"
+                    action: "movEntrada",
+                    status:'Entrada de Materia Prima Preparada'
                 })
             })
             if(response.status === 200) {

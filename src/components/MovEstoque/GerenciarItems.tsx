@@ -130,10 +130,16 @@ export default function GerenciarItens(props: dataSaida){
                 body: JSON.stringify({
                     material: materialId,
                     qtd: qtd,
+                    qtdDigitada: quantidade,
                     date: date,
+                    fornecedor: "",
+                    solicitante: "",
+                    emailSolicitante: "",
+                    acompanhante: "Movimentação Interna",
                     tabela: "1",
                     colunaTabela: "n_qtde_item",
-                    action: "movSaida"
+                    action: "movSaida",
+                    status: "Saida de item"
                 })
             })
             if(response.status === 200) {
@@ -176,16 +182,22 @@ export default function GerenciarItens(props: dataSaida){
                 body: JSON.stringify({
                     material: materialId,
                     qtd: qtdAtual,
+                    qtdDigitada: quantidade,
                     date: date,
+                    fornecedor: "",
+                    solicitante: "",
+                    emailSolicitante: "",
+                    acompanhante: acompanhante,
                     tabela: "1",
                     colunaTabela: "n_qtde_item",
-                    action: "movEntrada"
+                    action: "movEntrada",
+                    status:"Entrada de item"
                 })
             })
             if(response.status === 200) {
                 setSeeAlerta(true);
                 dataAlerta = {
-                    title: "Movimentação concluida com sucesso! Deseja deduzir o material bruto utilizado?",
+                    title: "Movimentação concluida com sucesso! Deseja deduzir o material preparado utilizado?",
                     buttonTitle: ["Não","Sim"],
                     buttonAction: [()=>{setSeeAlerta(false);props.onAction()}, ()=>{setSeeAlerta(false),BuscarMateriaPrima(Number(materialId))}]
                 }
@@ -245,10 +257,16 @@ export default function GerenciarItens(props: dataSaida){
                     body: JSON.stringify({
                         material: materiaPrimaId,
                         qtd: qtd,
+                        qtdDigitada: quantidade,
                         date: date,
+                        fornecedor: "",
+                        solicitante: "",
+                        emailSolicitante: "",
+                        acompanhante: acompanhante,
                         tabela: "0",
                         colunaTabela: "n_qtde_materiaprimaPreparado",
-                        action: "movSaida"
+                        action: "movSaida",
+                        status: 'Saida de Materia Prima Preparada'
                     })
                 })
                 if(response.status === 200) {

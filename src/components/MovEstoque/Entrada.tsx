@@ -109,18 +109,21 @@ export default function Entrada(props: dataEntrada){
     }
 
     async function EntradaMaterial(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado:any,  materialId: string){
-        let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaBruto";
+        let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaBruto", status;
         let diminuiuBruto = true;
         if(typeMaterial == "typePreparado"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorPreparado);
             qtdBrutoAtual = Number(qtdAnteriorBruto) - Number(quantidade);
             diminuiuBruto = await SaidaMaterialBruto(qtdBrutoAtual, tabela);
+            status = 'Entrada de Materia Prima Preparada'
         }else if(typeMaterial == "typeBruto"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorBruto);
             coluna = 'n_qtde_materiaprimaBruto';
+            status = 'Entrada de Materia Prima Bruta'
         }else{
             qtdAtual = Number(quantidade) + Number(qtdAnterior);
             coluna = 'n_qtd_estoque';
+            status = 'Entrada de Produto Final'
         }
 
         if(diminuiuBruto){
@@ -133,11 +136,16 @@ export default function Entrada(props: dataEntrada){
                     body: JSON.stringify({
                         material: materialId,
                         qtd: qtdAtual,
+                        qtdDigitada: quantidade,
                         date: date,
                         fornecedor: fornecedor,
+                        solicitante: "",
+                        emailSolicitante: "",
+                        acompanhante: "",
                         tabela: tabela,
                         colunaTabela: coluna,
-                        action: "movEntrada"
+                        action: "movEntrada",
+                        status: status
                     })
                 })
                 if(response.status === 200) {
@@ -173,6 +181,10 @@ export default function Entrada(props: dataEntrada){
         }
     }
 
+    async function SaidaMaterialPreparado(){
+        
+    }
+
     async function SaidaMaterialBruto(qtdBrutoAtual:any, tabela: any){
         try{
             const endpoint = `/api/apiEstoque`
@@ -183,11 +195,16 @@ export default function Entrada(props: dataEntrada){
                 body: JSON.stringify({
                     material: materialId,
                     qtd: qtdBrutoAtual,
+                    qtdDigitada: quantidade,
                     date: date,
-                    fornecedor: fornecedor,
+                    fornecedor: "",
+                    solicitante: "",
+                    emailSolicitante: "",
+                    acompanhante: "Movimentação Interna", //futuramente adicionar o usuario logado
                     tabela: tabela,
                     colunaTabela: "n_qtde_materiaprimaBruto",
-                    action: "movSaida"
+                    action: "movSaida",
+                    status: 'Saida de Materia Prima Bruta'
                 })
             })
             if(response.status === 200) {
