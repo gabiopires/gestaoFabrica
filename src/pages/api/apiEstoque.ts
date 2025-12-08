@@ -135,7 +135,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
 
                 connection.release()
                 const dataReturn = rows_itemsProduto
-                return res.status(200).json(dataReturn[0]);
+                return res.status(200).json(dataReturn);
             }catch(error){
                 console.error(error)
                 return res.status(500).json({message:"Internal Server Error"});

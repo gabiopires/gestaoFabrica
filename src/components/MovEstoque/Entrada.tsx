@@ -18,7 +18,8 @@ export default function Entrada(props: dataEntrada){
     const [quantidade, SetQuantidade] = useState("");
     const [date, setDate] = useState("");
     const [fornecedor, setFornecedor] = useState("");
-    const [typeMaterial, setTypeMaterial] = useState('')
+    const [typeMaterial, setTypeMaterial] = useState('');
+    const [itemProduto, setItemProduto] = useState<{n_id_item: number, n_qtde_item: number}[]>([])
     const [materialBrutoData, setMaterialBrutoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialProntoData, setMaterialProntoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [seeAlerta, setSeeAlerta] = useState(false);
@@ -79,22 +80,30 @@ export default function Entrada(props: dataEntrada){
 
     function FiltrarFunção(){
         let tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado, nome;
-        materialBrutoData.map((a)=>{
-            if(materialId == a.id){
-                if(typeMaterial == "typePreparado"){
-                    tabela = a.tabela;
-                    qtdAnteriorBruto = a.qtdBruto;
-                    qtdAnteriorPreparado = a.qtdPreparado;
-                    nome = a.nome;
-                }else if(typeMaterial == "typeBruto"){
-                    tabela = a.tabela;
-                    qtdAnteriorBruto = a.qtdBruto;
-                }else{
+
+        if(typeMaterial == "typePronto"){
+            materialProntoData.map((a)=>{
+                if(materialId == a.id){
                     tabela = a.tabela;
                     qtdAnterior = a.qtd;
                 }
-            }
-        })
+            })
+        }else{
+            materialBrutoData.map((a)=>{
+                if(materialId == a.id){
+                    if(typeMaterial == "typePreparado"){
+                        tabela = a.tabela;
+                        qtdAnteriorBruto = a.qtdBruto;
+                        qtdAnteriorPreparado = a.qtdPreparado;
+                        nome = a.nome;
+                    }else if(typeMaterial == "typeBruto"){
+                        tabela = a.tabela;
+                        qtdAnteriorBruto = a.qtdBruto;
+                    }
+                }
+            })
+        }
+
         if(Number(qtdAnteriorBruto) < Number(quantidade)){
             setSeeAlerta(true);
             dataAlerta = {
@@ -104,13 +113,13 @@ export default function Entrada(props: dataEntrada){
             }
             return;
         }else{
-            EntradaMaterial(tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado, materialId);
+            EntradaMaterial(tabela, qtdAnterior, qtdAnteriorBruto, qtdAnteriorPreparado);
         }
     }
 
-    async function EntradaMaterial(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado:any,  materialId: string){
+    async function EntradaMaterial(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado:any){
         let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaBruto", status;
-        let diminuiuBruto = true;
+        let diminuiuBruto, diminuiuItem = false;
         if(typeMaterial == "typePreparado"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorPreparado);
             qtdBrutoAtual = Number(qtdAnteriorBruto) - Number(quantidade);
@@ -121,9 +130,28 @@ export default function Entrada(props: dataEntrada){
             coluna = 'n_qtde_materiaprimaBruto';
             status = 'Entrada de Materia Prima Bruta'
         }else{
-            qtdAtual = Number(quantidade) + Number(qtdAnterior);
-            coluna = 'n_qtd_estoque';
-            status = 'Entrada de Produto Final'
+            const result = await getProduto_Item();
+            diminuiuBruto = result.diminuiuBruto; // Atualiza a variável de controle
+            const itemsParaSaida = result.items;
+            if (diminuiuBruto && itemsParaSaida && itemsParaSaida.length > 0) {
+                const resultados = await Promise.all(
+                    itemsParaSaida.map((a: any) =>
+                        SaidaMaterialPreparado(a.n_id_item, a.n_qtde_item)
+                    )
+                );
+                diminuiuItem = resultados.every(r => r === true);
+                qtdAtual = Number(quantidade) + Number(qtdAnterior);
+                coluna = 'n_qtd_estoque';
+                status = 'Entrada de Produto Final'
+            }else if (!diminuiuBruto){
+                setSeeAlerta(true);
+                dataAlerta = {
+                    title: `Estoque insuficiente para finalizar esse produto!`,
+                    buttonTitle: ["Ok"],
+                    buttonAction: [()=>{setSeeAlerta(false)}]
+                }
+                return;
+            }
         }
 
         if(diminuiuBruto){
@@ -181,11 +209,74 @@ export default function Entrada(props: dataEntrada){
         }
     }
 
-    async function SaidaMaterialPreparado(){
-        
+    async function getProduto_Item(){
+        try{
+            const endpoint = `/api/apiEstoque?action=getProduto_item&data=${materialId}`
+            const response = await fetch(endpoint, { cache: "reload", method: "GET" })
+            if (response.status === 200) {
+                const returnDataApi = await response.json()
+                const temEstoqueSuficiente = returnDataApi.every((a:any) => 
+                    {   
+                        const estoqueDisponivel = Number(a.n_qtde_item); 
+                        const quantidadeRequerida = Number(quantidade); 
+                        
+                        return estoqueDisponivel >= quantidadeRequerida; // Verifica se há estoque
+                    }
+                );
+                
+                if(temEstoqueSuficiente){
+                    // Retorna os dados para serem usados imediatamente
+                    return { diminuiuBruto: true, items: returnDataApi }; 
+                }
+                // Retorna false se a condição não for atendida
+                return { diminuiuBruto: false, items: [] }; 
+                
+            } else {
+                console.error(`Error ${response.status}`)
+                return { diminuiuBruto: false, items: [] };
+            }
+        }catch(error){
+            console.error("Error fetching data:", error)
+            return { diminuiuBruto: false, items: [] };
+        }
+    }
+
+    async function SaidaMaterialPreparado(id: any, qtdAtual: any){
+        try{
+            const endpoint = `/api/apiEstoque`
+            const response = await fetch(endpoint, { 
+                cache: "reload", 
+                headers:{'Content-Type':'application/json'},
+                method: "PUT",
+                body: JSON.stringify({
+                    material: id,
+                    qtd: qtdAtual - Number(quantidade),
+                    qtdDigitada: quantidade,
+                    date: date,
+                    fornecedor: "",
+                    solicitante: "",
+                    emailSolicitante: "",
+                    acompanhante: "Movimentação Interna", //futuramente adicionar o usuario logado
+                    tabela: "1",
+                    colunaTabela: "n_qtde_item",
+                    action: "movSaida",
+                    status: 'Saida de item fabricado'
+                })
+            })
+            if(response.status === 200) {
+                return true;
+            }else{
+                console.error(`Error ${response.status}`);
+                return false;
+            }
+        }catch(error){
+            console.error("Error fetching data:", error);
+            return false;
+        }
     }
 
     async function SaidaMaterialBruto(qtdBrutoAtual:any, tabela: any){
+        console.log(materialId)
         try{
             const endpoint = `/api/apiEstoque`
             const response = await fetch(endpoint, { 
