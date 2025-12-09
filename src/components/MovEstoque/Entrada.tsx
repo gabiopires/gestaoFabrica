@@ -19,7 +19,6 @@ export default function Entrada(props: dataEntrada){
     const [date, setDate] = useState("");
     const [fornecedor, setFornecedor] = useState("");
     const [typeMaterial, setTypeMaterial] = useState('');
-    const [itemProduto, setItemProduto] = useState<{n_id_item: number, n_qtde_item: number}[]>([])
     const [materialBrutoData, setMaterialBrutoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [materialProntoData, setMaterialProntoData] = useState<{id: string, tabela: string, nome: string, qtd: string, qtdBruto: string, qtdPreparado: string}[]>([]);
     const [seeAlerta, setSeeAlerta] = useState(false);
@@ -103,8 +102,7 @@ export default function Entrada(props: dataEntrada){
                 }
             })
         }
-
-        if(Number(qtdAnteriorBruto) < Number(quantidade)){
+        if(typeMaterial == "typePreparado" && (Number(qtdAnteriorBruto) < Number(quantidade))){
             setSeeAlerta(true);
             dataAlerta = {
                 title: `Não existe material bruto suficiente para preparar ${quantidade} ${nome}`,
@@ -118,7 +116,7 @@ export default function Entrada(props: dataEntrada){
     }
 
     async function EntradaMaterial(tabela: any, qtdAnterior: any, qtdAnteriorBruto: any, qtdAnteriorPreparado:any){
-        let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaBruto", status;
+        let qtdAtual, qtdBrutoAtual, coluna = "n_qtde_materiaprimaPreparado", status;
         let diminuiuBruto, diminuiuItem = false;
         if(typeMaterial == "typePreparado"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorPreparado);
@@ -128,7 +126,8 @@ export default function Entrada(props: dataEntrada){
         }else if(typeMaterial == "typeBruto"){
             qtdAtual = Number(quantidade) + Number(qtdAnteriorBruto);
             coluna = 'n_qtde_materiaprimaBruto';
-            status = 'Entrada de Materia Prima Bruta'
+            status = 'Entrada de Materia Prima Bruta';
+            diminuiuBruto = true;
         }else{
             const result = await getProduto_Item();
             diminuiuBruto = result.diminuiuBruto; // Atualiza a variável de controle
@@ -276,7 +275,6 @@ export default function Entrada(props: dataEntrada){
     }
 
     async function SaidaMaterialBruto(qtdBrutoAtual:any, tabela: any){
-        console.log(materialId)
         try{
             const endpoint = `/api/apiEstoque`
             const response = await fetch(endpoint, { 

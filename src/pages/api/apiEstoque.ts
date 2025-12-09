@@ -27,6 +27,15 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                 `
                 const [rowsProduto] = await connection.query<RowDataPacket[]>(query,[]);
 
+                query=`SELECT 
+                        MIN(item.n_qtde_item) AS martelos_prontos_para_montar
+                    FROM produto_item 
+                    LEFT JOIN item 
+                        ON produto_item.n_id_item = item.n_id_item
+                    WHERE produto_item.n_id_produto = 20;
+                `
+                const [rowsProdutoPMontar] = await connection.query<RowDataPacket[]>(query,[]);
+
                 query = `SELECT 
                         em.n_id_estoque_movimentacao,
                         em.data_movimentacao,
@@ -47,7 +56,9 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                     LEFT JOIN materiaprima mp ON em.n_id_materiaPrima = mp.n_id_materiaprima
                     LEFT JOIN produto p ON em.n_id_produto = p.n_id_produto
                     LEFT JOIN pessoa pes ON em.acompanhou_producao = pes.n_id_pessoa
-                    ORDER BY em.data_movimentacao;`
+                    ORDER BY 
+                        ABS(TIMESTAMPDIFF(SECOND, em.data_movimentacao, NOW())) ASC
+                    LIMIT 100;`
                 ;
                 const [rowsMov] = await connection.query<RowDataPacket[]>(query,[]);
 
@@ -56,6 +67,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                     bruto: rowsBruto,
                     item: rowsItem,
                     produto: rowsProduto,
+                    produtoPMontar: rowsProdutoPMontar[0],
                     movimentacao: rowsMov
                 }
 
@@ -192,7 +204,7 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
                 `
                 const [rowsMov] = await connection.query<RowDataPacket[]>(query,[date,qtdDigitada,status,fornecedor,solicitante, emailSolicitante,
                     acompanhante, item, materiaPrima, produto
-                ]);
+                ]);                
 
                 connection.release()
 

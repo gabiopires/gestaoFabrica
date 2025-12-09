@@ -7,20 +7,15 @@ export default function PaginaEstoque() {
     const [bruto, setBruto] = useState<{id: number, nome: string, qtdBruto: number, qtdPreparado: number}[]>([]);
     const [item, setItem] = useState<{id: number, nome: string, qtd: number}[]>([]);
     const [produto, setProduto] = useState<{id: number, nome: string, qtd: number}[]>([]);
-    const [mov, setMov] = useState<{
-        acompanhante: string, data_movimentacao: string, estoque: number, qtd_movimentada: string, 
+    const [produtoPMontar, setProdutoPMontar] = useState<{martelos_prontos_para_montar:string}>({martelos_prontos_para_montar:""})
+    const [mov, setMov] = useState<{acompanhante: string, data_movimentacao: string, estoque: number, qtd_movimentada: string, 
         nome_solicitante:string, status_movimentacao: string,email_solicitante: string,
-        fornecedor:string, n_id_estoque_movimentacao: number
-    }[]>([]);
+        fornecedor:string, n_id_estoque_movimentacao: number}[]>([]);
     const [movEstoque, setMovEstoque] = useState(false);
 
     useEffect(()=>{
         carregarEstoques()
     },[movEstoque])
-
-
-    const metricsProduto = [{text:"finalizados",desc:"50"},{text:"prontos para montar",desc:"10"},{text:"necessário produzir",desc:"5"},{text:"necessário comprar",desc:"50"}]
-    const metricsEntreProdutos = [{item: "Macete", qtdFinalizado: 300, qtdPronto: 100,},{item: "Garrafinha", qtdFinalizado: 300, qtdPronto: 100,}]
 
     async function carregarEstoques(){
         try {
@@ -32,6 +27,7 @@ export default function PaginaEstoque() {
                 setMov(returnDataApi.movimentacao)
                 setBruto(returnDataApi.bruto)
                 setItem(returnDataApi.item)
+                setProdutoPMontar(returnDataApi.produtoPMontar)
             } else {
                 console.error(`Error ${response.status}`)
             }
@@ -47,7 +43,7 @@ export default function PaginaEstoque() {
         const mm = String(date.getMonth() + 1).padStart(2, '0');  
         const yyyy = date.getFullYear(); 
     
-        const hh = String(date.getHours()).padStart(2, '0');  
+        const hh = String(date.getHours() + 3).padStart(2, '0');  
         const mi = String(date.getMinutes()).padStart(2, '0'); 
     
         return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
@@ -66,7 +62,7 @@ export default function PaginaEstoque() {
                             <option>Macete</option>
                             <option>Garrafinha</option>
                         </select> */}
-                        <button className='md:mb-4 mb-2 md:w-[250px] w-[180px] md:mr-[10%] mr-2 h-[30px] rounded-2xl bg-[#FFF] shadow-[0px_3px_10px_rgba(0,0,0,0.3)] hover:bg-slate-300 transition duration-300' onClick={()=>{setMovEstoque(true)}}>
+                        <button className='md:mb-4 mb-2 md:w-[250px] w-[180px] md:mr-[10%] mr-2 h-[35px] rounded-xl bg-[#FFF] shadow-[0px_3px_10px_rgba(0,0,0,0.3)] hover:bg-slate-300 transition duration-300' onClick={()=>{setMovEstoque(true)}}>
                             Movimentar estoque
                         </button>
                     </div>
@@ -116,7 +112,7 @@ export default function PaginaEstoque() {
                                             <div key={index} className='border-b-2 h-[35px] flex'>
                                                 <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.nome}</p>
                                                 <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
-                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{a.qtd}</p>
+                                                <p className='w-[50%] flex items-center justify-center text-sm text-center leading-none'>{produtoPMontar.martelos_prontos_para_montar}</p>
                                             </div>
                                         ))}
                                     </div>
