@@ -6,7 +6,7 @@
 .Topo{
   background-color: #00428C;
   width: 100%;
-  min-height: 70px;
+  height: 70px;
   display: flex;
   flex-direction: row;
   align-items:center;
